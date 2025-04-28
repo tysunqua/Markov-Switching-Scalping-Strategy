@@ -1,21 +1,19 @@
 
 # Abstract
-This project presents a modular backtesting framework for systematic trading strategies that integrates dynamic position sizing, robust risk management, and parameter optimization. By leveraging technical indicators like ATR, RSI, and SMA, the system generates trading signals and adjusts trade sizes based on market volatility and signal strength. With built-in mechanisms for stop-losses, take-profits, partial exits, and trailing stops, it ensures effective risk management and capital preservation. An Optuna-based optimization module fine-tunes parameters to maximize performance, making the framework a powerful and flexible tool for both research and practical trading applications.
+This project implements a regime-based algorithmic trading strategy for the Vietnamese VN30F futures market on a 1-minute timeframe. Using a Markov Switching Model, the system dynamically classifies the market into two distinct volatility regimes: high volatility and low volatility.
 
-# Introduction
-In today's dynamic financial markets, systematic trading strategies require robust frameworks that adapt to changing conditions while effectively managing risk. This strategy combines technical analysis with dynamic position sizing and rigorous risk management to capture profitable trading opportunities. By leveraging key indicators such as moving averages, ATR, and RSI, the strategy identifies entry and exit signals that reflect market momentum and volatility.
-At its core, the strategy uses dynamic position sizing to adjust the number of contracts based on signal strength and market volatility, ensuring that exposure is aligned with the prevailing risk environment. Integrated risk management tools—such as stop-losses, take-profit levels, partial exits, and trailing stops—help protect capital and lock in gains. Furthermore, the inclusion of an optimization module using Optuna allows for the fine-tuning of strategy parameters, enhancing performance and adaptability across different market conditions.
-Overall, this approach provides a comprehensive and systematic framework that bridges theoretical trading models with real-world applications, offering traders a disciplined method to navigate volatile markets while aiming for consistent performance.
+For each regime, a tailored set of technical indicators is used to generate trading signals:
+
+In high volatility, a momentum-based strategy captures trend continuations using indicators such as Acceleration, ADX, MACD, Bollinger Bands breakouts, On-Balance Volume, and volume surges.
+
+In low volatility, a mean reversion strategy exploits price oscillations using SMA Gap, Stochastic Oscillator, Williams %R, Commodity Channel Index, Bollinger Bands reversion, and volume capitulation signals.
+
+Positions are initiated when at least 80% regime-specific conditions are met, increasing signal opportunities while maintaining robustness. The framework is modular, allowing easy customization of indicators, regime detection methods, and signal logic.
+
+This approach aims to adapt trading behavior to changing market conditions, improving performance stability and risk management in a high-frequency environment.
 
 # Backtesting and Optimization System
 This project presents a modular, systematic trading strategy framework that integrates dynamic position sizing, robust risk management, and parameter optimization. The system simulates real-world trading conditions using historical data while adjusting trade sizes based on volatility and signal strength. It also offers comprehensive performance evaluation via various metrics and visualizations.
-
-## Feature
-- [x] Research the 1-minute candle scalping to beat the fee and spread (0.47 in total)
-- [x] Validate Test Case: Momentum Signal, Reversion Signal and Backtesting
-- [x] Optimize parameters
-- [x] Evaluate backtesting and optimization
-- [ ] Paper trade
 
 ---
 
@@ -28,66 +26,73 @@ pip install -r requirements.txt
 
 # Related Work (Background)
 
-Many academic studies and industry reports have explored quantitative trading strategies using technical indicators such as moving averages, ATR, and RSI. Prior work shows that dynamic position sizing—where trade sizes adapt to market volatility and signal strength—can improve risk-adjusted returns.
+Ang, A., & Timmermann, A. (2012).
+Regime Changes and Financial Markets.
+Annual Review of Financial Economics, 4(1), 313–337.
+➔ A comprehensive review of how regime-switching models are applied in finance to explain volatility, returns, and asset allocation strategies.
 
-**Prerequisite Reading:**
-- *Quantitative Trading* by Ernest P. Chan
-- *Algorithmic Trading: Winning Strategies and Their Rationale* by Ernie Chan
-- Research on dynamic risk management and position sizing techniques.
+Lo, A. W., & MacKinlay, A. C. (1997).
+The Econometrics of Financial Markets.
+Princeton University Press.
+➔ This textbook discusses technical indicators, momentum strategies, and econometric models applied to trading — including empirical performance under changing market conditions.
 
+Moskowitz, T. J., Ooi, Y. H., & Pedersen, L. H. (2012).
+Time Series Momentum.
+Journal of Financial Economics, 104(2), 228–250.
+➔ Empirical evidence supporting the success of momentum strategies, particularly in assets showing strong trend persistence during high volatility periods.
+
+S&P Dow Jones Indices. (2021).
+Understanding Mean Reversion in Volatility.
+➔ A white paper discussing how volatility tends to mean revert, and how strategies can exploit low-volatility environments for short-term mean-reversion opportunities.
 ---
 
 ## Trading (Algorithm) Hypotheses
 
-The core hypothesis of this strategy is that combining technical indicators (ATR, RSI, SMA) and momentum signal in VN30F1M data and VN30 data (since VN30 and VN30F1M is highly correlated) with dynamic position sizing can produce consistent, profitable trading signals. By scaling into positions based on volatility and signal strength, and applying robust risk controls (stop-losses, take-profits, partial exits, and trailing stops), the strategy aims to capture market opportunities while limiting downside risk.
+The design of this trading algorithm is based on the following core hypotheses:
 
-*Step 1 of the Nine-Step: Formulate the hypothesis that adaptive position sizing and risk management yield superior performance compared to fixed sizing methods.*
+Market volatility exhibits regime-switching behavior. (Using 5 minutes timeframe for less noise and clearer regime)
+The VN30F futures market alternates between distinguishable high-volatility and low-volatility states. These regimes can be dynamically identified using a Markov Switching Model, allowing the trading strategy to adapt in real-time.
 
+Different market regimes favor different trading styles.
+
+In high volatility, price movements are more likely to persist in their direction, favoring momentum-based strategies that ride strong trends.
+
+In low volatility, prices tend to oscillate around a mean value, favoring mean reversion strategies that exploit temporary price extremes.
+
+Technical indicators can effectively capture regime-specific opportunities.
+A carefully selected set of technical indicators—such as ADX, MACD, Bollinger Bands, Stochastic Oscillator, and Williams %R—can provide statistically significant signals for both trend continuation and mean reversion, when interpreted in the context of the prevailing volatility regime.
+
+Volume dynamics enhance signal validity.
+Volume-based indicators, such as On-Balance Volume and relative volume surges, add valuable information about market participation and conviction, improving the accuracy of momentum breakouts and mean reversion points.
+
+Short-term intraday strategies can benefit from volatility-aware adaptation.
+On a 1-minute timeframe, rapid shifts between trending and ranging conditions make regime awareness particularly critical. A static strategy is likely to underperform compared to a dynamic, volatility-responsive system.
 ---
 
 # Data
 
 ## Data Source
-- Historical market data including OHLC (Open, High, Low, Close) prices, trading volumes (from Algotrade database), and VN30 index values (from SSI fast connect data API).
+- Historical market data including OHLC (Open, High, Low, Close) prices, trading volumes (from SSI fast connect data API).
 More detail of SSI API can be found [here](https://guide.ssi.com.vn/ssi-products/)
 - Data is sourced from reliable financial providers and stored in CSV format.
 
 
 ## Data Type
 - Time series data
-- Price and volume information
-- Computed technical indicators (SMA, ATR, RSI)
+- Price and volume information (1 minute timeframe and 5 minutes timeframe)
+- Computed technical indicators (SMA, ATR, RSI, ADX,...)
 
 ## Data Period
-- **In-Sample:** e.g., January 2023 to December 2023
-- **Out-of-Sample:** e.g., January 2024 to April 2024
-
-## How to Get the Input Data?
-- Input data files are available in the `data` directory of the repository.
-- Additional data may be acquired via APIs or direct downloads from financial data providers.
-
-## How to Store the Output Data?
-- Backtest results and performance metrics are stored as CSV files, with filenames indicating whether they are from in-sample or out-of-sample tests.
-
-## Data Collection
-Data is collected by downloading historical records and, if necessary, using real-time API feeds. Pre-processing scripts ensure data is cleaned, aligned, and formatted correctly for subsequent analysis.
-
-## Get In-Sample and Out-Sample data
-Running main.py in the first part of the file
-
-*Step 2 of the Nine-Step: Gather and verify all required data for analysis.*
-
+- **In-Sample:** e.g., January 2020 to December 2023
+- **Out-of-Sample:** e.g., January 2024 to Now
 ---
 
 ## Data Processing
 
 Raw data is cleaned and pre-processed to calculate essential technical indicators. This step includes:
-- Calculating SMA, ATR, and RSI values.
+- Calculating Technical Analysis Value
 - Merging various data sources (price, volume, and index data).
 - Aligning time series data for accurate analysis.
-
-*Step 3 of the Nine-Step: Process the raw data to create inputs for the trading algorithm.*
-
 ---
 
 # Implementation
@@ -95,29 +100,28 @@ Raw data is cleaned and pre-processed to calculate essential technical indicator
 ## Brief Implementation Description
 The trading strategy is implemented in Python and consists of the following modules:
 - **Backtesting Engine:** Simulates trade execution, dynamic position management (including partial exits and trailing stops), and performance metric calculation.
-- **Optimization Module:** Uses Optuna for parameter tuning to maximize strategy performance.
+- **Optimization Module:** Uses Optuna for parameter tuning to maximize strategy performance. Also, using Hidden Markov Model for fitting a ML-based Regime detection
 - **Result & Metric Analysis:** Provides visualization and quantitative analysis of performance (e.g., cumulative PNL, Sharpe Ratio, Maximum Drawdown, Win Rate, contract counts).
 
 ## Environment Setup and Replication Steps
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/yourusername/backtesting-optimization.git
-   cd backtesting-optimization
-
+   git clone https://github.com/tysunqua/Markov-Switching-Scalping-Strategy.git
 # In-sample Backtesting
 
 ## Description
 In-sample backtesting is the process of calibrating and validating the trading strategy using historical data from the training period. This step helps fine-tune the model parameters and assess performance before applying the strategy to new data.  
-*Step 4 of the Nine-Step*
+
 
 ## Parameters
-- Strategy parameters (e.g., SMA window length, momentum lookback, acceleration thresholds, etc.)
+- Strategy parameters (e.g., ADX window length, EMA window length,...)
+- Regime Detection Model (e.g., Hidden Markov Model)
 - Risk management settings (e.g., stop-loss, take-profit thresholds)
 - Initial asset value (e.g., 10,000)
 
 ## Data
 - **Input Data:** `data/insample.csv`
-- **Data Period:** For example, January 2023 to December 2023
+- **Data Period:** For example, January 2020 to December 2023
 
 ## In-sample Backtesting Result
 The in-sample backtesting results are summarized in a performance table and visualized with a cumulative PNL chart.  
@@ -138,21 +142,43 @@ The optimization step involves fine-tuning the trading strategy parameters to ma
 - **Method:** Tree-structured Parzen Estimator (TPE) sampler
 - **Process:** Multiple trials are conducted to evaluate various parameter combinations, selecting the best based on the objective function (maximizing cumulative PNL).
 
+# Hidden Markov Model 
+- **Library:** [Hmm](https://hmmlearn.readthedocs.io/en/latest/tutorial.html)
+- **Method:** Maximize full covariance
+- **Feature** ATR, ATR percentage change
+- **Process:** Multiple trials are conducted to evaluate various parameter combinations, selecting the best based on the objective function (maximizing likelihood function).
+
 ## Parameters to Optimize
-- SMA window length  
-- SMA gap  
-- Momentum lookback  
-- Acceleration thresholds (long and short)  
-- Take-profit threshold  
-- Cut-loss threshold  
-- Quantity window  
-- Quantity multiplier  
-- Short extra profit  
-- RSI window  
-- RSI threshold
+    - sma_window_length
+    - sma_gap
+    - momentum_lookback
+    - acceleration_threshold
+    - short_acceleration_threshold
+    - take_profit_threshold_high_volatility
+    - take_profit_threshold_low_volatility
+    - cut_loss_threshold_high_volatility
+    - cut_loss_threshold_low_volatility
+    - quantity_window
+    - quantity_multiply
+    - short_extra_profit
+    - rsi_window
+    - rsi_threshold
+    - ema_fast_period
+    - ema_slow_period
+    - adx_window
+    - adx_threshold
+    - macd_window
+    - bb_window
+    - obv_window
+    - williams_r_window
+    - williams_r_threshold
+    - cci_window
+    - cci_threshold
+    - stochastic_oscillator_window
+    - stochastic_oscillator_threshold
 
 ## Hyper-parameters of the Optimization Process
-- **Number of Trials:** 10000 
+- **Number of Trials:** 1000
 - **Sampler Seed:** 42  
 - **Study Direction:** Maximize cumulative PNL
 

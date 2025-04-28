@@ -31,72 +31,51 @@ print(hmm_data.head())
 # Run the backtest with the best parameters
 result = BacktestResult(optimization_params)
 
-# In-sample backtest
-# insample_result = result.backtest_insample_data()
-# print("Insample Backtest Result:")
-# print(insample_result.head())
-# metrics = Metric(insample_result)
-# metrics.show_metrics()
-# metrics.plot_pnl()
+import matplotlib.pyplot as plt
 
-# # Out-of-sample backtest
-# outsample_result = result.backtest_outsample_data()
-# print("Out-of-sample Backtest Result:")
-# print(outsample_result.head())
-# metrics = Metric(outsample_result)
-# metrics.show_metrics()
-# metrics.plot_pnl()
-
-# Reversion strategy backtest
-# Insample reversion strategy backtest
-reversion_insample_result = result.backtest_reversion_strategy_insample_data()
-print("Reversion Insample Backtest Result:")
-print(reversion_insample_result.head())
-metrics = Metric(reversion_insample_result)
-metrics.show_metrics()
-metrics.plot_pnl()
-
-# Out-of-sample reversion strategy backtest
-reversion_outsample_result = result.backtest_reversion_strategy_outsample_data()
-print("Reversion Out-of-sample Backtest Result:")
-print(reversion_outsample_result.head())
-metrics = Metric(reversion_outsample_result)
-metrics.show_metrics()
-metrics.plot_pnl()
-
-# Momentum strategy backtest
-# Insample momentum strategy backtest
-momentum_insample_result = result.backtest_momentum_strategy_insample_data()
-print("Momentum Insample Backtest Result:")
-print(momentum_insample_result.head())
-metrics = Metric(momentum_insample_result)
-metrics.show_metrics()
-metrics.plot_pnl()
-
-# Out-of-sample momentum strategy backtest
-momentum_outsample_result = result.backtest_momentum_strategy_outsample_data()
-print("Momentum Out-of-sample Backtest Result:")
-print(momentum_outsample_result.head())
-metrics = Metric(momentum_outsample_result)
-metrics.show_metrics()
-metrics.plot_pnl()
-
-# Final Markov strategy backtest
-# Insample final Markov strategy backtest
-final_markov_insample_result = result.backtest_final_markov_strategy_insample_data()
-print("Final Markov Insample Backtest Result:")
-print(final_markov_insample_result.head())
-metrics = Metric(final_markov_insample_result)
-metrics.show_metrics()
-metrics.plot_pnl()
-
-# Out-of-sample final Markov strategy backtest
+# Run your backtests
+momentum_insample_result    = result.backtest_momentum_strategy_insample_data()
+momentum_outsample_result   = result.backtest_momentum_strategy_outsample_data()
+final_markov_insample_result  = result.backtest_final_markov_strategy_insample_data()
 final_markov_outsample_result = result.backtest_final_markov_strategy_outsample_data()
-print("Final Markov Out-of-sample Backtest Result:")
-print(final_markov_outsample_result.head())
-metrics = Metric(final_markov_outsample_result)
-metrics.show_metrics()
+
+# Get the performance metrics
+momentum_insample_metrics = Metric(momentum_insample_result)
+momentum_outsample_metrics = Metric(momentum_outsample_result)
+final_markov_insample_metrics = Metric(final_markov_insample_result)
+final_markov_outsample_metrics = Metric(final_markov_outsample_result)
+
+# Prepare the figure and axes
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+
+# 3) Momentum Insample
+metrics = Metric(momentum_insample_result)
+plt.sca(axes[0, 0])                # set current axis
+metrics.plot_pnl()                 # draws here
+axes[0, 0].set_title('Momentum Insample Backtest')
+
+# 4) Momentum Outsample
+metrics = Metric(momentum_outsample_result)
+plt.sca(axes[0, 1])
 metrics.plot_pnl()
+axes[0, 1].set_title('Momentum Outsample Backtest')
+
+# 5) Final Markov Insample
+metrics = Metric(final_markov_insample_result)
+plt.sca(axes[1, 0])
+metrics.plot_pnl()
+axes[1, 0].set_title('Final Markov Insample Backtest')
+
+# 6) Final Markov Outsample
+metrics = Metric(final_markov_outsample_result)
+plt.sca(axes[1, 1])
+metrics.plot_pnl()
+axes[1, 1].set_title('Final Markov Outsample Backtest')
+
+# 7) Tidy up
+plt.tight_layout()
+plt.show()
+
 
 
 
