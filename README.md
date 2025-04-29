@@ -116,7 +116,8 @@ In-sample backtesting is the process of calibrating and validating the trading s
 ## Parameters
 - Strategy parameters (e.g., ADX window length, EMA window length,...)
 - Regime Detection Model (e.g., Hidden Markov Model)
-- Risk management settings (e.g., stop-loss, take-profit thresholds)
+- Risk management settings (e.g., stop-loss, take-profit thresholds, maximum 45 contracts)
+- Trading_fee and spread (e.g., 0.47)
 - Initial asset value (e.g., 10,000)
 
 # Optimization
