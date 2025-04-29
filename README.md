@@ -67,7 +67,7 @@ Volume-based indicators, such as On-Balance Volume and relative volume surges, a
 
 Short-term intraday strategies can benefit from volatility-aware adaptation.
 On a 1-minute timeframe, rapid shifts between trending and ranging conditions make regime awareness particularly critical. A static strategy is likely to underperform compared to a dynamic, volatility-responsive system.
----
+
 
 # Data
 
