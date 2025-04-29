@@ -252,27 +252,6 @@ class FinalMarkovBacktesting:
                     (row['OBV'] < prev_row['OBV']),
                     (row['volume'] > 1.5 * row['Volume_MA'])
                 ]
-        # else:  # Reversion strategy conditions in low volatility
-        #     if direction == 'LONG':
-        #         conditions = [
-        #             row['Price/SMA'] < 1 - params['sma_gap'],
-        #             row['RSI'] < 50 - params['rsi_threshold'],
-        #             (row['Stoch_%K'] < 50 - params['stochastic_oscillator_threshold']),
-        #             (row['close'] < row['BB_low']),
-        #             (row['Williams_%R'] < -50 - params['willr_threshold']),
-        #             (row['CCI'] < -params['cci_threshold']),
-        #             (row['volume'] > 2 * row['Volume_MA'])
-        #         ]
-        #     else:  # SHORT
-        #         conditions = [
-        #             row['Price/SMA'] > 1 + params['sma_gap'],
-        #             row['RSI'] > 50 + params['rsi_threshold'],
-        #             (row['Stoch_%K'] > 50 + params['stochastic_oscillator_threshold']),
-        #             (row['close'] > row['BB_high']),
-        #             (row['Williams_%R'] > -50 + params['willr_threshold']),
-        #             (row['CCI'] > params['cci_threshold']),
-        #             (row['volume'] > 2 * row['Volume_MA'])
-        #         ]
         conditions_met = sum(conditions)
         return conditions_met >= len(conditions) - 1  # Allow at most two conditions to fail
 
@@ -359,33 +338,6 @@ class FinalMarkovBacktesting:
             if new_stop < position['trailing_stop']:
                 position['trailing_stop'] = new_stop
         return position
-
-    # -------------------------------
-    # Condition Functions
-    # -------------------------------
-    # def check_long_position_conditions(self, row, acceleration_threshold, quantity_multiply, sma_gap, short_acceleration_threshold, rsi_threshold):
-    #     conditions = [
-    #         row['Acceleration'] > acceleration_threshold,
-    #         row['VN30 Acceleration'] > 0,
-    #         row['volume'] > row['Average Quantity'] * quantity_multiply,
-    #         row['Price/SMA'] < 1 - sma_gap,
-    #         row['Short Acceleration'] > short_acceleration_threshold,
-    #         row['RSI'] < 50 - rsi_threshold
-    #     ]
-    #     # Allow at most one condition to fail
-    #     return conditions.count(True) >= len(conditions) - 2
-
-    # def check_short_position_conditions(self, row, acceleration_threshold, quantity_multiply, sma_gap, short_acceleration_threshold, rsi_threshold):
-    #     conditions = [
-    #         row['Acceleration'] < -acceleration_threshold,
-    #         row['VN30 Acceleration'] < 0,
-    #         row['volume'] > row['Average Quantity'] * quantity_multiply,
-    #         row['Price/SMA'] > 1 + sma_gap,
-    #         row['Short Acceleration'] < -short_acceleration_threshold,
-    #         row['RSI'] > 50 + rsi_threshold
-    #     ]
-    #     # Allow at most two conditions to fail
-    #     return conditions.count(True) >= len(conditions) - 2
 
     # -------------------------------
     # Main Backtesting Function

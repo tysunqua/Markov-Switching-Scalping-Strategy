@@ -360,33 +360,7 @@ class Backtesting:
                 position['trailing_stop'] = new_stop
         return position
 
-    # -------------------------------
-    # Condition Functions
-    # -------------------------------
-    # def check_long_position_conditions(self, row, acceleration_threshold, quantity_multiply, sma_gap, short_acceleration_threshold, rsi_threshold):
-    #     conditions = [
-    #         row['Acceleration'] > acceleration_threshold,
-    #         row['VN30 Acceleration'] > 0,
-    #         row['volume'] > row['Average Quantity'] * quantity_multiply,
-    #         row['Price/SMA'] < 1 - sma_gap,
-    #         row['Short Acceleration'] > short_acceleration_threshold,
-    #         row['RSI'] < 50 - rsi_threshold
-    #     ]
-    #     # Allow at most one condition to fail
-    #     return conditions.count(True) >= len(conditions) - 2
-
-    # def check_short_position_conditions(self, row, acceleration_threshold, quantity_multiply, sma_gap, short_acceleration_threshold, rsi_threshold):
-    #     conditions = [
-    #         row['Acceleration'] < -acceleration_threshold,
-    #         row['VN30 Acceleration'] < 0,
-    #         row['volume'] > row['Average Quantity'] * quantity_multiply,
-    #         row['Price/SMA'] > 1 + sma_gap,
-    #         row['Short Acceleration'] < -short_acceleration_threshold,
-    #         row['RSI'] > 50 + rsi_threshold
-    #     ]
-    #     # Allow at most two conditions to fail
-    #     return conditions.count(True) >= len(conditions) - 2
-
+   
     # -------------------------------
     # Main Backtesting Function
     # -------------------------------
@@ -423,23 +397,6 @@ class Backtesting:
             - stochastic_oscillator_window
             - stochastic_oscillator_threshold
         """
-        # -------------------------------
-        # Preprocess data and compute indicators
-        # -------------------------------
-        # trading_data = trading_data.copy()
-        # sma_window_length = params.get("sma_window_length")
-        # ema_fast_period = params.get("ema_fast_period")
-        # ema_slow_period = params.get("ema_slow_period")
-        # momentum_lookback = params.get("momentum_lookback")
-        # quantity_window = params.get("quantity_window")
-        
-        # trading_data['SMA'] = trading_data['close'].rolling(sma_window_length).mean()
-        # trading_data['EMA_fast'] = trading_data['close'].ewm(span=ema_fast_period, adjust=False).mean()
-        # trading_data['EMA_slow'] = trading_data['close'].ewm(span=ema_slow_period, adjust=False).mean()
-        # trading_data['Price/SMA'] = trading_data['close'] / trading_data['SMA']
-        # trading_data['Average Quantity'] = trading_data['volume'].rolling(quantity_window).mean()
-        # trading_data['Acceleration'] = trading_data['close'] - trading_data['close'].shift(momentum_lookback)
-        # trading_data['RSI'] = self.RSI(trading_data, params.get("rsi_window"))
         trading_data = self.momentum_indicators(trading_data, params)
         trading_data = self.reversion_indicators(trading_data, params)
         trading_data = self.ATR(trading_data, window=14)

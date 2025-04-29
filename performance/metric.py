@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Metric:
-    def __init__(self, result_df):
+    def __init__(self, result_df, result_df2=None):
         """
         Initialize with the result DataFrame from the backtesting.
         The DataFrame is expected to have at least these columns:
@@ -12,6 +12,7 @@ class Metric:
             - 'Cumulative Short'
         """
         self.result_df = result_df
+        self.result_df2 = result_df2
 
     def plot_pnl(self):
         """
@@ -25,6 +26,36 @@ class Metric:
         plt.legend()
         plt.grid(True)
         plt.show()
+        
+    def plot_pnl2(self, title1, title2):
+        """
+        Plot 2 cumulative PNL over time in 2 subplots.
+        """
+        
+        if self.result_df2 is None:
+            raise ValueError("Second result DataFrame is not provided.")
+        
+        fig, axs = plt.subplots(2, 1, figsize=(12, 12))
+        
+        # Plot for the first DataFrame
+        axs[0].plot(self.result_df.index, self.result_df['Cumulative PNL'], label='Cumulative PNL', color='blue')
+        axs[0].set_title('Cumulative PNL Over Time' + f' ({title1})') 
+        axs[0].set_xlabel('Time')
+        axs[0].set_ylabel('Cumulative PNL')
+        axs[0].legend()
+        axs[0].grid(True)
+        
+        # Plot for the second DataFrame
+        axs[1].plot(self.result_df2.index, self.result_df2['Cumulative PNL'], label='Cumulative PNL', color='orange')
+        axs[1].set_title('Cumulative PNL Over Time' + f' ({title2})')
+        axs[1].set_xlabel('Time')
+        axs[1].set_ylabel('Cumulative PNL')
+        axs[1].legend()
+        axs[1].grid(True)
+        
+        plt.tight_layout()
+        plt.show()
+        
 
     def calculate_sharpe(self, risk_free_rate=0.000001):
         """
@@ -45,6 +76,16 @@ class Metric:
             return np.nan
         # Annualize Sharpe ratio
         sharpe = ((mean_return - daily_rf) / std_return) * np.sqrt(252)
+        
+        # Second dataframe Sharpe ratio calculation if provided
+        if self.result_df2 is not None:
+            pnl2 = self.result_df2['PNL']
+            mean_return2 = pnl2.mean()
+            std_return2 = pnl2.std()
+            if std_return2 == 0:
+                return np.nan
+            sharpe2 = ((mean_return2 - daily_rf) / std_return2) * np.sqrt(252)
+            sharpe = (sharpe, sharpe2)
         return sharpe
 
     def calculate_mdd(self):
@@ -56,7 +97,31 @@ class Metric:
         running_max = cum_pnl.cummax()
         drawdown = running_max - cum_pnl
         max_drawdown = drawdown.max()
-        return max_drawdown
+        mdd = max_drawdown / running_max.max() if running_max.max() != 0 else np.nan
+        
+        # Second dataframe MDD calculation if provided
+        if self.result_df2 is not None:
+            cum_pnl2 = self.result_df2['Cumulative PNL']
+            running_max2 = cum_pnl2.cummax()
+            drawdown2 = running_max2 - cum_pnl2
+            max_drawdown2 = drawdown2.max()
+            mdd2 = max_drawdown2 / running_max2.max() if running_max2.max() != 0 else np.nan
+            mdd = (mdd, mdd2)
+        return mdd
+    
+    def get_pnl(self):
+        """
+        Return the final PNL from the last row of the DataFrame.
+        """
+        last_row = self.result_df.iloc[-1]
+        pnl = last_row.get('Cumulative PNL', 0)
+        
+        # Second dataframe PNL calculation if provided
+        if self.result_df2 is not None:
+            last_row2 = self.result_df2.iloc[-1]
+            pnl2 = last_row2.get('Cumulative PNL', 0)
+            pnl = (pnl, pnl2)
+        return pnl
 
     def calculate_win_rate(self):
         """
@@ -69,6 +134,15 @@ class Metric:
             return np.nan
         win_count = (valid > 0).sum()
         win_rate = win_count / len(valid)
+        
+        # Second dataframe win rate calculation if provided
+        if self.result_df2 is not None:
+            pnl2 = self.result_df2['PNL']
+            valid2 = pnl2[pnl2 != 0]
+            if len(valid2) == 0:
+                return np.nan
+            win_count2 = (valid2 > 0).sum()
+            win_rate = (win_rate, win_count2 / len(valid2))
         return win_rate
 
     def get_long_short_counts(self):
@@ -80,6 +154,14 @@ class Metric:
         last_row = self.result_df.iloc[-1]
         long_count = last_row.get('Cumulative Long', 0)
         short_count = last_row.get('Cumulative Short', 0)
+        
+        # Second dataframe long/short counts calculation if provided
+        if self.result_df2 is not None:
+            last_row2 = self.result_df2.iloc[-1]
+            long_count2 = last_row2.get('Cumulative Long', 0)
+            short_count2 = last_row2.get('Cumulative Short', 0)
+            long_count = (long_count, long_count2)
+            short_count = (short_count, short_count2)
         return long_count, short_count
 
     def show_metrics(self):
@@ -95,12 +177,14 @@ class Metric:
         sharpe = self.calculate_sharpe()
         mdd = self.calculate_mdd()
         win_rate = self.calculate_win_rate()
+        pnl = self.get_pnl()
         long_count, short_count = self.get_long_short_counts()
 
         metrics = {
             'Sharpe Ratio': sharpe,
             'Maximum Drawdown': mdd,
             'Win Rate': win_rate,
+            'Final PNL': pnl,
             'Total Long Trades': long_count,
             'Total Short Trades': short_count
         }

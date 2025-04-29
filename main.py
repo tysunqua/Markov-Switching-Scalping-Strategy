@@ -34,48 +34,39 @@ result = BacktestResult(optimization_params)
 import matplotlib.pyplot as plt
 
 # Run your backtests
-momentum_insample_result    = result.backtest_momentum_strategy_insample_data()
-momentum_outsample_result   = result.backtest_momentum_strategy_outsample_data()
-final_markov_insample_result  = result.backtest_final_markov_strategy_insample_data()
-final_markov_outsample_result = result.backtest_final_markov_strategy_outsample_data()
-
-# Get the performance metrics
-momentum_insample_metrics = Metric(momentum_insample_result)
-momentum_outsample_metrics = Metric(momentum_outsample_result)
-final_markov_insample_metrics = Metric(final_markov_insample_result)
-final_markov_outsample_metrics = Metric(final_markov_outsample_result)
-
-# Prepare the figure and axes
-fig, axes = plt.subplots(2, 2, figsize=(12, 8))
-
-# 3) Momentum Insample
-metrics = Metric(momentum_insample_result)
-plt.sca(axes[0, 0])                # set current axis
-metrics.plot_pnl()                 # draws here
-axes[0, 0].set_title('Momentum Insample Backtest')
-
-# 4) Momentum Outsample
-metrics = Metric(momentum_outsample_result)
-plt.sca(axes[0, 1])
-metrics.plot_pnl()
-axes[0, 1].set_title('Momentum Outsample Backtest')
-
-# 5) Final Markov Insample
-metrics = Metric(final_markov_insample_result)
-plt.sca(axes[1, 0])
-metrics.plot_pnl()
-axes[1, 0].set_title('Final Markov Insample Backtest')
-
-# 6) Final Markov Outsample
-metrics = Metric(final_markov_outsample_result)
-plt.sca(axes[1, 1])
-metrics.plot_pnl()
-axes[1, 1].set_title('Final Markov Outsample Backtest')
-
-# 7) Tidy up
-plt.tight_layout()
-plt.show()
 
 
+if __name__ == "__main__":
+    choice = input("Select backtest type ('in', 'out', or 'both'): ").strip().lower()
+    if choice == "in":
+        momentum_insample_result    = result.backtest_momentum_strategy_insample_data()
+        final_markov_insample_result  = result.backtest_final_markov_strategy_insample_data()
+        metrics_insample = Metric(momentum_insample_result, final_markov_insample_result)
+        metrics_insample.plot_pnl2(title1="Momentum Strategy Insample", title2="Markov Strategy Insample")
+        metrics_insample.show_metrics()
+
+    elif choice == "out":
+        momentum_outsample_result   = result.backtest_momentum_strategy_outsample_data()
+        final_markov_outsample_result = result.backtest_final_markov_strategy_outsample_data()
+        metrics_outsample = Metric(momentum_outsample_result, final_markov_outsample_result)
+        metrics_outsample.plot_pnl2(title1="Momentum Strategy Outsample", title2="Markov Strategy Outsample")
+        metrics_outsample.show_metrics()
+
+    elif choice == "both":
+        momentum_insample_result    = result.backtest_momentum_strategy_insample_data()
+        momentum_outsample_result   = result.backtest_momentum_strategy_outsample_data()
+        final_markov_insample_result  = result.backtest_final_markov_strategy_insample_data()
+        final_markov_outsample_result = result.backtest_final_markov_strategy_outsample_data()
+
+        metrics_insample = Metric(momentum_insample_result, final_markov_insample_result)
+        metrics_outsample = Metric(momentum_outsample_result, final_markov_outsample_result)
+
+        metrics_insample.plot_pnl2(title1="Momentum Strategy Insample", title2="Markov Strategy Insample")
+        metrics_outsample.plot_pnl2(title1="Momentum Strategy Outsample", title2="Markov Strategy Outsample")
+
+        metrics_insample.show_metrics()
+        metrics_outsample.show_metrics()
+    else:
+        print("Invalid choice. Please select 'insample', 'outsample', or 'both'.")
 
 
