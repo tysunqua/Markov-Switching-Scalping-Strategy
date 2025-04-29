@@ -212,7 +212,7 @@ The best parameters is stored in ```optimization/best_params.json``` file
 ## Insample Result
 **Cumulative PnL**
 
-![Insample Return](doc/figure_2.png)
+![Insample Return](doc/Figure_2.png)
 
 | **Metric**               | **Momentum Strategy** | **Markov-Switching Strategy** |
 |--------------------------|-----------------------|-------------------------------|
@@ -227,7 +227,7 @@ The best parameters is stored in ```optimization/best_params.json``` file
 ## Outsample Result
 **Cumulative PnL**
 
-![Outsample Return](doc/figure_1.png) 
+![Outsample Return](doc/Figure_1.png) 
 
 | **Metric**               | **Momentum Strategy** | **Markov-Switching Strategy** |
 |--------------------------|-----------------------|-------------------------------|
