@@ -44,7 +44,7 @@ Journal of Financial Economics, 104(2), 228–250.
 S&P Dow Jones Indices. (2021).
 Understanding Mean Reversion in Volatility.
 ➔ A white paper discussing how volatility tends to mean revert, and how strategies can exploit low-volatility environments for short-term mean-reversion opportunities.
----
+
 
 ## Trading (Algorithm) Hypotheses
 
